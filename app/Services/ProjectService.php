@@ -8,20 +8,17 @@ use App\Models\User;
 class ProjectService
 {
     public function create(array $data, User $creator): Project
-    {
-        $project = Project::create([
-            ...$data,
-            'created_by' => $creator->id,
-        ]);
+{
+    $project = Project::create(array_merge($data, [
+        'created_by' => $creator->id,
+    ]));
 
-        // Whoever creates the project is auto-assigned as manager if they hold
-        // a PM/Agency Manager system role — keeps them able to act on it immediately.
-        if ($creator->hasRole('project_manager') || $creator->hasRole('agency_manager')) {
-            $project->staff()->attach($creator->id, ['role_on_project' => 'manager']);
-        }
-
-        return $project;
+    if ($creator->hasRole('project_manager') || $creator->hasRole('agency_manager')) {
+        $project->staff()->attach($creator->id, ['role_on_project' => 'manager']);
     }
+
+    return $project;
+}
 
     public function assignStaff(Project $project, int $userId, string $roleOnProject): void
     {

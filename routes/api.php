@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('projects', ProjectController::class);
     Route::post('/projects/{project}/assign', [ProjectController::class, 'assignStaff']);
+
+    Route::post('/staff', [UserController::class, 'storeStaff']);
 });
 
-Route::post('/staff', [UserController::class, 'storeStaff']);
