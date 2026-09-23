@@ -32,6 +32,12 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             'users.manage' => 'Manage Users',
             'roles.manage' => 'Manage Roles',
+            // Projects module
+            'projects.view_any' => 'View All Projects',       // agency-wide visibility
+            'projects.create' => 'Create Projects',
+            'projects.update' => 'Update Projects',
+            'projects.delete' => 'Delete Projects',
+            'projects.assign_staff' => 'Assign Staff to Projects',
         ];
 
         foreach ($permissions as $name => $label) {
@@ -39,9 +45,27 @@ class RolePermissionSeeder extends Seeder
         }
 
         // Agency Manager gets users.manage as an example wiring
-        $agencyManager = Role::where('name', 'agency_manager')->first();
-        $agencyManager->permissions()->syncWithoutDetaching(
-            Permission::whereIn('name', ['users.manage'])->pluck('id')
+        // $agencyManager = Role::where('name', 'agency_manager')->first();
+        // $agencyManager->permissions()->syncWithoutDetaching(
+        //     Permission::whereIn('name', ['users.manage'])->pluck('id')
+        // );
+
+        // Agency Manager: full project control
+        Role::where('name', 'agency_manager')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', [
+                'users.manage',
+                'projects.view_any',
+                'projects.create',
+                'projects.update',
+                'projects.delete',
+                'projects.assign_staff',
+            ])->pluck('id')
+        );
+
+        // Project Manager: can update projects (their own, enforced by Policy) and assign staff,
+        // but cannot create new projects or delete them — that's an agency-level decision.
+        Role::where('name', 'project_manager')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', ['projects.update', 'projects.assign_staff'])->pluck('id')
         );
 
         // Super Admin user for testing (bypasses permissions via Gate::before anyway)

@@ -9,7 +9,7 @@ use App\Models\User;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        // We'll add Project::class => ProjectPolicy::class etc. in later sprints
+        \App\Models\Project::class => \App\Policies\ProjectPolicy::class,
     ];
 
     public function boot(): void

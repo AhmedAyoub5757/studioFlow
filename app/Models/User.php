@@ -61,4 +61,22 @@ class User extends Authenticatable
             ->flatMap(fn($role) => $role->permissions)
             ->contains('name', $permissionName);
     }
+
+    public function projectsAsStaff(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'project_user')
+            ->withPivot('role_on_project')
+            ->withTimestamps();
+    }
+
+    public function projectsAsClient(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Project::class, 'client_id');
+    }
+
+    /** Is this user assigned to $project in any capacity? */
+    public function isAssignedTo(Project $project): bool
+    {
+        return $this->projectsAsStaff()->where('project_id', $project->id)->exists();
+    }
 }
