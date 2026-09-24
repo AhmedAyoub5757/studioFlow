@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\MilestoneController;
+use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\TimeLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,8 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+// Route::post('/register', [AuthController::class, 'register']);
+// Route::post('/login', [AuthController::class, 'login']);
 
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::post('/logout', [AuthController::class, 'logout']);
@@ -42,3 +45,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/staff', [UserController::class, 'storeStaff']);
 });
 
+// Milestones (nested under project for index/store, flat for show/update/delete)
+Route::get('/projects/{project}/milestones', [MilestoneController::class, 'index']);
+Route::post('/projects/{project}/milestones', [MilestoneController::class, 'store']);
+Route::get('/milestones/{milestone}', [MilestoneController::class, 'show']);
+Route::put('/milestones/{milestone}', [MilestoneController::class, 'update']);
+Route::delete('/milestones/{milestone}', [MilestoneController::class, 'destroy']);
+
+// Tasks
+Route::get('/projects/{project}/tasks', [TaskController::class, 'index']);
+Route::post('/projects/{project}/tasks', [TaskController::class, 'store']);
+Route::get('/tasks/{task}', [TaskController::class, 'show']);
+Route::put('/tasks/{task}', [TaskController::class, 'update']);
+Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus']);
+Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
+
+// Time logs
+Route::get('/tasks/{task}/time-logs', [TimeLogController::class, 'index']);
+Route::post('/tasks/{task}/time-logs', [TimeLogController::class, 'store']);
