@@ -38,6 +38,18 @@ class RolePermissionSeeder extends Seeder
             'projects.update' => 'Update Projects',
             'projects.delete' => 'Delete Projects',
             'projects.assign_staff' => 'Assign Staff to Projects',
+            // Milestones
+            'milestones.create' => 'Create Milestones',
+            'milestones.update' => 'Update Milestones',
+            'milestones.delete' => 'Delete Milestones',
+            // Tasks
+            'tasks.create' => 'Create Tasks',
+            'tasks.update' => 'Update Tasks (full edit)',
+            'tasks.update_status' => 'Update Own Task Status',
+            'tasks.delete' => 'Delete Tasks',
+            // Time logs
+            'time_logs.create' => 'Log Own Time',
+            'time_logs.view_any' => 'View All Time Logs on a Project',
         ];
 
         foreach ($permissions as $name => $label) {
@@ -53,20 +65,36 @@ class RolePermissionSeeder extends Seeder
         // Agency Manager: full project control
         Role::where('name', 'agency_manager')->first()->permissions()->syncWithoutDetaching(
             Permission::whereIn('name', [
-                'users.manage',
-                'projects.view_any',
-                'projects.create',
-                'projects.update',
-                'projects.delete',
-                'projects.assign_staff',
+                'milestones.create',
+                'milestones.update',
+                'milestones.delete',
+                'tasks.create',
+                'tasks.update',
+                'tasks.delete',
+                'time_logs.view_any',
             ])->pluck('id')
         );
 
         // Project Manager: can update projects (their own, enforced by Policy) and assign staff,
         // but cannot create new projects or delete them — that's an agency-level decision.
         Role::where('name', 'project_manager')->first()->permissions()->syncWithoutDetaching(
-            Permission::whereIn('name', ['projects.update', 'projects.assign_staff'])->pluck('id')
+            Permission::whereIn('name', [
+                'milestones.create',
+                'milestones.update',
+                'milestones.delete',
+                'tasks.create',
+                'tasks.update',
+                'tasks.delete',
+                'time_logs.view_any',
+            ])->pluck('id')
         );
+
+        // Developer / Designer / QA: can only flip status on their own task + log their own time
+        foreach (['developer', 'designer', 'qa'] as $roleName) {
+            Role::where('name', $roleName)->first()->permissions()->syncWithoutDetaching(
+                Permission::whereIn('name', ['tasks.update_status', 'time_logs.create'])->pluck('id')
+            );
+        }
 
         // Super Admin user for testing (bypasses permissions via Gate::before anyway)
         $superAdmin = User::firstOrCreate(

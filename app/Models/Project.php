@@ -13,8 +13,15 @@ class Project extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'slug', 'description', 'client_id', 'created_by',
-        'status', 'budget', 'start_date', 'end_date',
+        'name',
+        'slug',
+        'description',
+        'client_id',
+        'created_by',
+        'status',
+        'budget',
+        'start_date',
+        'end_date',
     ];
 
     protected static function booted(): void
@@ -44,5 +51,21 @@ class Project extends Model
     public function staffWithRole(string $role): BelongsToMany
     {
         return $this->staff()->wherePivot('role_on_project', $role);
+    }
+
+    public function milestones(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Milestone::class);
+    }
+
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    /** Is $user the manager on THIS project? Reused across Sprint 2/3 policies. */
+    public function isManagedBy(User $user): bool
+    {
+        return $this->staffWithRole('manager')->where('user_id', $user->id)->exists();
     }
 }
