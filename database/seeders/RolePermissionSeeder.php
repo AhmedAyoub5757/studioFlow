@@ -66,7 +66,18 @@ class RolePermissionSeeder extends Seeder
             'time_logs.create' => 'Log Own Time',
             'time_logs.view_any' => 'View All Time Logs on a Project',
 
-            // --- Sprint 3+ permissions go here, grouped under a new
+            // --- Sprint 3: Comments module ---
+            // Note: creating a comment needs NO permission string — it's pure
+            // ownership (can you view the parent Task/Milestone's project?),
+            // enforced entirely in CommentPolicy::create(). Only moderation
+            // (deleting someone else's comment) needs an explicit permission.
+            'comments.delete_any' => 'Delete Any Comment (moderation)',
+
+            // --- Sprint 3: Approvals module ---
+            'approvals.request' => 'Request Milestone Approval (mark ready for client)',
+            'approvals.decide' => 'Approve or Reject a Milestone',
+
+            // --- Sprint 4+ permissions go here, grouped under a new
             //     "--- Sprint N: X module ---" comment. Never delete
             //     or rename an old line without a migration plan —
             //     other roles' pivot rows reference these by name.
@@ -156,7 +167,36 @@ class RolePermissionSeeder extends Seeder
             );
         }
 
-        // --- Sprint 3+ role wiring goes here as new
+        // --- Sprint 3: Agency Manager — can moderate any comment, and can
+        //     both request AND decide approvals (override power over the
+        //     normal PM-requests / Client-decides split below).
+        Role::where('name', 'agency_manager')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', [
+                'comments.delete_any',
+                'approvals.request',
+                'approvals.decide',
+            ])->pluck('id')
+        );
+
+        // --- Sprint 3: Project Manager — can REQUEST approval (mark a
+        //     milestone ready for client review) but deliberately CANNOT
+        //     decide it. That decision belongs to the client. Ownership
+        //     (must be manager on that specific project) is enforced in
+        //     ApprovalPolicy::request().
+        Role::where('name', 'project_manager')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', ['approvals.request'])->pluck('id')
+        );
+
+        // --- Sprint 3: Client — can DECIDE (approve/reject) approvals on
+        //     their OWN projects only. Ownership enforced in
+        //     ApprovalPolicy::decide() via project.client_id === user.id.
+        //     Comment creation needs no permission entry — see note above
+        //     the comments.delete_any permission definition.
+        Role::where('name', 'client')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', ['approvals.decide'])->pluck('id')
+        );
+
+        // --- Sprint 4+ role wiring goes here as new
         //     "--- Sprint N: Role X — description ---" blocks, following
         //     the exact same syncWithoutDetaching() pattern.
 

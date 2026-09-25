@@ -9,8 +9,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Task extends Model
 {
     protected $fillable = [
-        'project_id', 'milestone_id', 'title', 'description', 'assigned_to',
-        'created_by', 'type', 'status', 'priority', 'due_date',
+        'project_id',
+        'milestone_id',
+        'title',
+        'description',
+        'assigned_to',
+        'created_by',
+        'type',
+        'status',
+        'priority',
+        'due_date',
     ];
 
     public function project(): BelongsTo
@@ -36,5 +44,10 @@ class Task extends Model
     public function timeLogs(): HasMany
     {
         return $this->hasMany(TimeLog::class);
+    }
+
+    public function comments(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable')->latest();
     }
 }
