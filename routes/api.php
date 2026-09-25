@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\MilestoneController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TimeLogController;
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\ApprovalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +45,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{project}/assign', [ProjectController::class, 'assignStaff']);
 
     Route::post('/staff', [UserController::class, 'storeStaff']);
+
+    // Comments — Task
+    Route::get('/tasks/{task}/comments', [CommentController::class, 'indexForTask']);
+    Route::post('/tasks/{task}/comments', [CommentController::class, 'storeForTask']);
+
+    // Comments — Milestone
+    Route::get('/milestones/{milestone}/comments', [CommentController::class, 'indexForMilestone']);
+    Route::post('/milestones/{milestone}/comments', [CommentController::class, 'storeForMilestone']);
+
+    // Comments — shared delete
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+    // Approvals (milestone-scoped)
+    Route::get('/milestones/{milestone}/approvals', [ApprovalController::class, 'index']);
+    Route::post('/milestones/{milestone}/approvals/request', [ApprovalController::class, 'request']);
+    Route::post('/milestones/{milestone}/approvals/decide', [ApprovalController::class, 'decide']);
 });
 
 // Milestones (nested under project for index/store, flat for show/update/delete)
