@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TimeLogController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ApprovalController;
+use App\Http\Controllers\Api\BugController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +62,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/milestones/{milestone}/approvals', [ApprovalController::class, 'index']);
     Route::post('/milestones/{milestone}/approvals/request', [ApprovalController::class, 'request']);
     Route::post('/milestones/{milestone}/approvals/decide', [ApprovalController::class, 'decide']);
+
+    Route::get('/projects/{project}/bugs', [BugController::class, 'index']);
+    Route::post('/projects/{project}/bugs', [BugController::class, 'store']);
+    Route::get('/bugs/{bug}', [BugController::class, 'show']);
+    Route::put('/bugs/{bug}', [BugController::class, 'update']);
+    Route::patch('/bugs/{bug}/status', [BugController::class, 'transition']);
+    Route::delete('/bugs/{bug}', [BugController::class, 'destroy']);
+
+    // Comments on bugs — reuses Sprint 3's CommentController, zero new controller code
+    Route::get('/bugs/{bug}/comments', [CommentController::class, 'indexForBug']);
+    Route::post('/bugs/{bug}/comments', [CommentController::class, 'storeForBug']);
 });
 
 // Milestones (nested under project for index/store, flat for show/update/delete)

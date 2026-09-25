@@ -55,4 +55,18 @@ class CommentController extends Controller
 
         return response()->json(['message' => 'Comment deleted']);
     }
+
+    public function indexForBug(\App\Models\Bug $bug)
+    {
+        $this->authorize('view', $bug);
+
+        return CommentResource::collection($bug->comments()->with('user')->get());
+    }
+
+    public function storeForBug(\App\Http\Requests\StoreCommentRequest $request, \App\Models\Bug $bug)
+    {
+        $comment = $this->comments->create($bug, $request->body, $request->user());
+
+        return new CommentResource($comment->load('user'));
+    }
 }
