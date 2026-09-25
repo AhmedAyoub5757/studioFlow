@@ -13,6 +13,7 @@ class AppServiceProvider extends ServiceProvider
             'task' => \App\Models\Task::class,
             'milestone' => \App\Models\Milestone::class,
             // 'bug' => \App\Models\Bug::class,       // add in Sprint 4
+            'bug' => \App\Models\Bug::class,
             // 'invoice' => \App\Models\Invoice::class, // add in Sprint 5
         ]);
     }

@@ -68,4 +68,9 @@ class Project extends Model
     {
         return $this->staffWithRole('manager')->where('user_id', $user->id)->exists();
     }
+
+    public function bugs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Bug::class);
+    }
 }

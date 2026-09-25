@@ -81,6 +81,12 @@ class RolePermissionSeeder extends Seeder
             //     "--- Sprint N: X module ---" comment. Never delete
             //     or rename an old line without a migration plan —
             //     other roles' pivot rows reference these by name.
+            'bugs.create' => 'Report Bugs',
+            'bugs.update' => 'Full Edit Bugs (reassign, severity, etc.)',
+            'bugs.transition_dev' => 'Move Own Bug open->in_progress->fixed',
+            'bugs.transition_qa' => 'Verify/Close/Reopen Bugs (QA authority)',
+            'bugs.wont_fix' => 'Mark Bug as Wont Fix',
+            'bugs.delete' => 'Delete Bugs',
         ];
 
         foreach ($permissions as $name => $label) {
@@ -199,6 +205,31 @@ class RolePermissionSeeder extends Seeder
         // --- Sprint 4+ role wiring goes here as new
         //     "--- Sprint N: Role X — description ---" blocks, following
         //     the exact same syncWithoutDetaching() pattern.
+        // Agency Manager: everything
+        Role::where('name', 'agency_manager')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', [
+                'bugs.create',
+                'bugs.update',
+                'bugs.transition_qa',
+                'bugs.wont_fix',
+                'bugs.delete',
+            ])->pluck('id')
+        );
+
+        // PM: full control on owned projects, except QA verification authority
+        Role::where('name', 'project_manager')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', ['bugs.create', 'bugs.update', 'bugs.wont_fix', 'bugs.delete'])->pluck('id')
+        );
+
+        // QA: creates bugs, and holds sole verification/close/reopen authority
+        Role::where('name', 'qa')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', ['bugs.create', 'bugs.transition_qa'])->pluck('id')
+        );
+
+        // Developer: can only move their own assigned bug through the dev-side transitions
+        Role::where('name', 'developer')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', ['bugs.transition_dev'])->pluck('id')
+        );
 
         // ==========================================================
         // 4. SUPER ADMIN TEST USER
