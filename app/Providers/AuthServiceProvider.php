@@ -9,11 +9,13 @@ use App\Models\User;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-    \App\Models\Project::class => \App\Policies\ProjectPolicy::class,
-    \App\Models\Milestone::class => \App\Policies\MilestonePolicy::class,
-    \App\Models\Task::class => \App\Policies\TaskPolicy::class,
-    \App\Models\TimeLog::class => \App\Policies\TimeLogPolicy::class,
-];
+        \App\Models\Project::class => \App\Policies\ProjectPolicy::class,
+        \App\Models\Milestone::class => \App\Policies\MilestonePolicy::class,
+        \App\Models\Task::class => \App\Policies\TaskPolicy::class,
+        \App\Models\TimeLog::class => \App\Policies\TimeLogPolicy::class,
+        \App\Models\Comment::class => \App\Policies\CommentPolicy::class,
+        \App\Models\Approval::class => \App\Policies\ApprovalPolicy::class,
+    ];
 
     public function boot(): void
     {
