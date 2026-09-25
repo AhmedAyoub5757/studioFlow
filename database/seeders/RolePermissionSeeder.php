@@ -87,6 +87,12 @@ class RolePermissionSeeder extends Seeder
             'bugs.transition_qa' => 'Verify/Close/Reopen Bugs (QA authority)',
             'bugs.wont_fix' => 'Mark Bug as Wont Fix',
             'bugs.delete' => 'Delete Bugs',
+
+            'invoices.view_any' => 'View All Invoices on a Project',
+            'invoices.manage' => 'Create/Send/Cancel Invoices',
+            'invoices.refund' => 'Refund a Paid Invoice',
+            'invoices.pay' => 'Pay an Invoice (Client)',
+            'subscriptions.manage' => 'Create/Update/Cancel Subscriptions',
         ];
 
         foreach ($permissions as $name => $label) {
@@ -242,6 +248,37 @@ class RolePermissionSeeder extends Seeder
         );
         $superAdmin->roles()->syncWithoutDetaching(
             Role::where('name', 'super_admin')->pluck('id')
+        );
+
+        // Finance: the whole module
+        Role::where('name', 'finance')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', [
+                'invoices.view_any',
+                'invoices.manage',
+                'invoices.refund',
+                'subscriptions.manage',
+            ])->pluck('id')
+        );
+
+        // Agency Manager: oversight + override, same as every other module
+        Role::where('name', 'agency_manager')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', [
+                'invoices.view_any',
+                'invoices.manage',
+                'invoices.refund',
+                'subscriptions.manage',
+            ])->pluck('id')
+        );
+
+        // Project Manager: can VIEW invoices on their project (needs to know payment status
+        // to plan delivery) but cannot create/send/refund — that's Finance's job, not PM's.
+        Role::where('name', 'project_manager')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', ['invoices.view_any'])->pluck('id')
+        );
+
+        // Client: pays their own invoices (ownership-checked in Policy)
+        Role::where('name', 'client')->first()->permissions()->syncWithoutDetaching(
+            Permission::whereIn('name', ['invoices.pay'])->pluck('id')
         );
     }
 }

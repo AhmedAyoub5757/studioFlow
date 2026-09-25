@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\TimeLogController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ApprovalController;
 use App\Http\Controllers\Api\BugController;
+use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\SubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +75,21 @@ Route::middleware('auth:sanctum')->group(function () {
     // Comments on bugs — reuses Sprint 3's CommentController, zero new controller code
     Route::get('/bugs/{bug}/comments', [CommentController::class, 'indexForBug']);
     Route::post('/bugs/{bug}/comments', [CommentController::class, 'storeForBug']);
+
+    // Invoices
+    Route::get('/projects/{project}/invoices', [InvoiceController::class, 'index']);
+    Route::post('/projects/{project}/invoices', [InvoiceController::class, 'store']);
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
+    Route::post('/invoices/{invoice}/send', [InvoiceController::class, 'send']);
+    Route::post('/invoices/{invoice}/cancel', [InvoiceController::class, 'cancel']);
+    Route::post('/invoices/{invoice}/pay', [InvoiceController::class, 'pay']);
+    Route::post('/invoices/{invoice}/refund', [InvoiceController::class, 'refund']);
+
+    // Subscriptions
+    Route::get('/projects/{project}/subscriptions', [SubscriptionController::class, 'index']);
+    Route::post('/projects/{project}/subscriptions', [SubscriptionController::class, 'store']);
+    Route::put('/subscriptions/{subscription}', [SubscriptionController::class, 'update']);
+    Route::post('/subscriptions/{subscription}/generate-invoice', [SubscriptionController::class, 'generateInvoice']);
 });
 
 // Milestones (nested under project for index/store, flat for show/update/delete)
