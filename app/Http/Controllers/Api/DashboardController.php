@@ -9,6 +9,16 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     /**
+     * @OA\Get(
+     *     path="/dashboard",
+     *     tags={"Dashboard"},
+     *     summary="Role-specific aggregated dashboard",
+     *     description="Payload shape varies by role: agency_overview, project_manager, staff, qa, finance, or client.",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Dashboard data, shape depends on caller's role")
+     * )
+     */
+    /**
      * @var \App\Services\DashboardService
      */
     protected $dashboard;
