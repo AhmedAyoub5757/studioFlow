@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\ApprovalController;
 use App\Http\Controllers\Api\BugController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\SubscriptionController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +92,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{project}/subscriptions', [SubscriptionController::class, 'store']);
     Route::put('/subscriptions/{subscription}', [SubscriptionController::class, 'update']);
     Route::post('/subscriptions/{subscription}/generate-invoice', [SubscriptionController::class, 'generateInvoice']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
 });
 
 // Milestones (nested under project for index/store, flat for show/update/delete)
@@ -110,3 +116,5 @@ Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
 // Time logs
 Route::get('/tasks/{task}/time-logs', [TimeLogController::class, 'index']);
 Route::post('/tasks/{task}/time-logs', [TimeLogController::class, 'store']);
+
+Route::get('/dashboard', [DashboardController::class, 'index']);

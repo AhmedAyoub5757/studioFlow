@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Approval;
 use App\Models\Milestone;
 use App\Models\User;
+use App\Notifications\MilestoneReadyForApproval;
+use App\Notifications\MilestoneDecided;
 use Illuminate\Validation\ValidationException;
 
 class ApprovalService
@@ -24,9 +26,7 @@ class ApprovalService
 
         $milestone->update(['status' => 'completed']); // "done, awaiting client sign-off"
 
-        // Notification hook — real send-out comes in Sprint 6.
-        // For now we just leave a clear extension point:
-        // Notification::send($milestone->project->client, new MilestoneReadyForApproval($milestone));
+        $milestone->project->client->notify(new MilestoneReadyForApproval($milestone));
 
         return $approval;
     }
@@ -52,8 +52,9 @@ class ApprovalService
             'status' => $status === 'approved' ? 'approved' : 'in_progress', // rejected -> back to work
         ]);
 
-        // Notification hook (Sprint 6):
-        // Notification::send($milestone->project->staff, new MilestoneDecided($milestone, $approval));
+        foreach ($milestone->project->staffWithRole('manager')->get() as $manager) {
+            $manager->notify(new MilestoneDecided($milestone, $approval));
+        }
 
         return $approval;
     }
