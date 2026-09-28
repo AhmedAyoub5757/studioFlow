@@ -79,4 +79,9 @@ class User extends Authenticatable
     {
         return $this->projectsAsStaff()->where('project_id', $project->id)->exists();
     }
+
+    public function timeLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TimeLog::class);
+    }
 }

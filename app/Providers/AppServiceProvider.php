@@ -10,6 +10,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::enforceMorphMap([
+            'user' => \App\Models\User::class,   // needed by Sanctum tokens + Notifications
             'task' => \App\Models\Task::class,
             'milestone' => \App\Models\Milestone::class,
             // 'bug' => \App\Models\Bug::class,       // add in Sprint 4
